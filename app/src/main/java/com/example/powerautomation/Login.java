@@ -1,10 +1,17 @@
 package com.example.powerautomation;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -24,6 +31,7 @@ import com.android.volley.toolbox.Volley;
 import static android.provider.ContactsContract.CommonDataKinds.Website.URL;
 
 public class Login extends AppCompatActivity {
+    private static final int SEND_SMS_PERMISSION_CODE = 1;
     EditText user, pass;
     Button login;
     String loginTag = "userLogin";
@@ -40,6 +48,12 @@ public class Login extends AppCompatActivity {
         user = findViewById(R.id.username);
         pass = findViewById(R.id.password);
         login = findViewById(R.id.btnLogin);
+
+        if(checkSelfPermission(Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(Login.this,
+                    new String[] {Manifest.permission.SEND_SMS},
+                    SEND_SMS_PERMISSION_CODE);
+        }
 
         LoginButton();
 
@@ -111,5 +125,16 @@ public class Login extends AppCompatActivity {
         Toast.makeText(Login.this, "Login Successful", Toast.LENGTH_SHORT).show();
         Intent i = new Intent(getBaseContext(), MainActivity.class);
         startActivity(i);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if(requestCode == SEND_SMS_PERMISSION_CODE){
+            if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                Toast.makeText(this, "Permission GRANTED", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Permission DENIED", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 }
